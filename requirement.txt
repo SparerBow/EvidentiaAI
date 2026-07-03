@@ -1,5 +1,0 @@
-streamlit
-biopython
-pandas
-requests
-sqlite3
