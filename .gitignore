@@ -58,3 +58,12 @@ Thumbs.db
 
 # Ignore compiled Python files in repo
 **/__pycache__/
+
+# Project-specific
+.env
+*.pyc
+*.db
+data/*.db
+logs/
+backups/
+vector_db/
