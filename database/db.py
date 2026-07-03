@@ -3,7 +3,8 @@ import os
 
 os.makedirs("data", exist_ok=True)
 
-DB_NAME = "data/evidence.db"
+# Database filename used by the app
+DB_NAME = "data/evidentia.db"
 
 def get_connection():
     return sqlite3.connect(DB_NAME)
@@ -23,6 +24,14 @@ def create_tables():
         authors TEXT,
         source TEXT,
         relevance_score REAL
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS search_history (
+        search_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        query TEXT,
+        searched_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
     """)
 
@@ -92,6 +101,28 @@ def list_studies(limit: int = 100):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM studies ORDER BY study_id DESC LIMIT ?", (limit,))
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+def insert_search_history(query: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO search_history (query) VALUES (?)
+        """,
+        (query,)
+    )
+    conn.commit()
+    conn.close()
+
+
+def list_search_history(limit: int = 50):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM search_history ORDER BY searched_at DESC LIMIT ?", (limit,))
     rows = cur.fetchall()
     conn.close()
     return rows

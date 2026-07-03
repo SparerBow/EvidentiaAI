@@ -1,77 +1,80 @@
-# EvdintiaAI — Literature Discovery
+# EvidentiaAI — Medical Evidence Intelligence Platform
 
-This project includes a Literature Discovery Agent that searches PubMed and saves study records to a local SQLite database.
+EvidentiaAI is an AI-powered medical evidence intelligence platform focused on enabling researchers, HEOR/RWE teams, Medical Affairs, and Evidence Synthesis professionals to discover, organize, validate and explore medical evidence.
 
-**Key files**
-- [services/pubmed_agent.py](services/pubmed_agent.py): PubMed ESearch/EFetch integration and DB saving.
-- [database/db.py](database/db.py): SQLite helpers and `insert_study`/`list_studies` APIs.
-- [scripts/run_pubmed_test.py](scripts/run_pubmed_test.py): Small runner to perform a search and save results.
-- [scripts/verify_pubmed_import.py](scripts/verify_pubmed_import.py): Quick import sanity check (no network).
+Current development focus: Phase 0 (Foundation) and Phase 1 (Literature Discovery Agent).
 
-# EvdintiaAI — Literature Discovery
+Key components
+- `services/pubmed_service.py`: PubMed integration using BioPython Entrez.
+- `database/db.py`: SQLite helpers and schema (creates `data/evidentia.db`).
+- `agents/literature_discovery_agent.py`: `LiteratureDiscoveryAgent` that searches PubMed and persists studies.
+- `app.py` + `pages/`: Streamlit UI (Dashboard, Literature Discovery, Upload Center).
 
-This project includes a Literature Discovery Agent that searches PubMed and saves study records to a local SQLite database.
+Requirements & environment
+- Python 3.11 (CI uses 3.11)
+- Create a `.env` from `.env.example` and set `PUBMED_EMAIL` before running PubMed searches.
 
-**Key files**
-- [services/pubmed_agent.py](services/pubmed_agent.py): PubMed ESearch/EFetch integration and DB saving.
-- [database/db.py](database/db.py): SQLite helpers and `insert_study`/`list_studies` APIs.
-- [scripts/run_pubmed_test.py](scripts/run_pubmed_test.py): Small runner to perform a search and save results.
-- [scripts/verify_pubmed_import.py](scripts/verify_pubmed_import.py): Quick import sanity check (no network).
+Quickstart
+1. Create and activate virtual environment:
 
-## NCBI API key and email
-
-To increase rate limits and identify your tool to NCBI, set the following environment variables:
-
-- `NCBI_API_KEY`: your NCBI e-utilities API key (optional but recommended).
-- `NCBI_EMAIL`: your contact email (recommended by NCBI usage policies).
-
-Example (PowerShell):
-
-```
-$env:NCBI_API_KEY = 'your_api_key_here'
-$env:NCBI_EMAIL = 'you@example.com'
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
 
-Example (bash/zsh):
-
-```
-export NCBI_API_KEY=your_api_key_here
-export NCBI_EMAIL=your_email@example.com
-```
-
-The agent reads these variables automatically; you can also pass them directly to `search_and_save(query, max_results, api_key=..., email=...)`.
-
-## Install and run
-
-1. Create and activate a virtual environment (already present in this repo as `.venv` for development).
 2. Install dependencies:
 
-```
+```powershell
 pip install -r requirements.txt
 ```
 
-3. Run the smoke test (will create `data/evidence.db`):
+3. Copy `.env.example` → `.env` and set values:
 
-```
-python scripts/run_pubmed_test.py
-```
-
-4. Verify imports without network:
-
-```
-python scripts/verify_pubmed_import.py
+```text
+PUBMED_EMAIL=you@example.com
+OPENAI_API_KEY=
+NCBI_API_KEY=
 ```
 
-## Database
+4. Run tests:
 
-The SQLite DB is stored at `data/evidence.db`. Use any SQLite client to inspect entries saved by the agent.
+```powershell
+.venv\Scripts\python -m pytest -q
+```
 
-## Notes
+5. Launch Streamlit UI:
 
-- Respect NCBI rate limits: the agent includes a small sleep between inserts and supports API keys for higher limits.
-- If running in environments without outbound network access, use `scripts/verify_pubmed_import.py` to confirm local setup.
+```powershell
+.venv\Scripts\python -m streamlit run app.py
+```
 
-## Next suggestions
+Notes
+- DB path: `data/evidentia.db` (created automatically on first run).
+- For PubMed: set `PUBMED_EMAIL` and optionally `NCBI_API_KEY` to respect NCBI policies.
+- On Windows, installing `biopython` may require `numpy`; if pip builds numpy from source, consider installing a binary wheel first: `pip install numpy`.
 
-- Add unit tests and CI to validate XML parsing and DB behavior.
-- Add a CLI wrapper and configurable logging.
+Project structure
+```
+EvidentiaAI/
+├── app.py
+├── agents/
+├── config/
+├── database/
+├── services/
+├── pages/
+├── data/
+├── uploads/
+├── logs/
+├── tests/
+├── requirements.txt
+├── .env.example
+└── README.md
+```
+
+Security
+- Do not commit `.env` or database files. See `.gitignore`.
+
+Roadmap & next steps
+- Phase 2: Evidence Extraction Agent (design pending)
+- Add `.env.example` (included) and CI improvements (linting, mypy, bandit)
+
